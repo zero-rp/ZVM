@@ -24,6 +24,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\x86\utils\elfloader.cpp" />
+    <ClCompile Include="..\..\x86\utils\peloader.cpp" />
     <ClCompile Include="..\..\x86\vm\cpu_helpers.cpp" />
     <ClCompile Include="..\..\x86\vm\device_manager.cpp" />
     <ClCompile Include="..\..\x86\vm\modrm.cpp" />
@@ -40,6 +41,7 @@
     <ClInclude Include="..\..\x86\include\config.h" />
     <ClInclude Include="..\..\x86\include\elfloader.h" />
     <ClInclude Include="..\..\x86\include\opcode_def.h" />
+    <ClInclude Include="..\..\x86\include\peloader.h" />
     <ClInclude Include="..\..\x86\include\x86lib.h" />
     <ClInclude Include="..\..\x86\include\x86lib_internal.h" />
   </ItemGroup>
