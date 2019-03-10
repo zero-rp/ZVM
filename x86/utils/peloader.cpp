@@ -8,7 +8,7 @@
 using namespace std;
 
 
-bool loadPE(char* code, size_t* codeSize, char* data, size_t* dataSize, char* raw, size_t size){
+bool loadPE(char* code, size_t* codeSize, char* data, size_t* dataSize, char* raw, size_t size) {
 
     return true;
 }

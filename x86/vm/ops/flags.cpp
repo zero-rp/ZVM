@@ -13,7 +13,7 @@ are met:
    documentation and/or other materials provided with the distribution.
 3. The name of the author may not be used to endorse or promote products
    derived from this software without specific prior written permission.
-   
+
 THIS SOFTWARE IS PROVIDED ``AS IS'' AND ANY EXPRESS OR IMPLIED WARRANTIES,
 INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY
 AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL
@@ -28,12 +28,12 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 This file is part of the x86Lib project.
 **/
 #include <x86lib.h>
-namespace x86Lib{
-using namespace std;
+namespace x86Lib {
+    using namespace std;
 
 
-static bool jcc(int condition, volatile FLAGS &f){
-    switch(condition){ //see http://www.ousob.com/ng/iapx86/ng10482.php for a good reference
+    static bool jcc(int condition, volatile FLAGS &f) {
+        switch (condition) { //see http://www.ousob.com/ng/iapx86/ng10482.php for a good reference
         case 0:
             return f.bits.of;
         case 1:
@@ -59,88 +59,91 @@ static bool jcc(int condition, volatile FLAGS &f){
         case 11:
             return !f.bits.pf;
         case 12:
-            return f.bits.sf!=f.bits.of;
+            return f.bits.sf != f.bits.of;
         case 13:
-            return f.bits.sf==f.bits.of;
+            return f.bits.sf == f.bits.of;
         case 14:
-            return (f.bits.sf!=f.bits.of) | f.bits.zf;
+            return (f.bits.sf != f.bits.of) | f.bits.zf;
         case 15:
-            return (f.bits.sf==f.bits.of) & !f.bits.zf;
+            return (f.bits.sf == f.bits.of) & !f.bits.zf;
         default:
             throw new CPUFaultException("This code should not be reached", 0xFFFF);
+        }
     }
-}
 
-void x86CPU::op_jcc_rel8(){
-    int cc = opbyte-0x70;
-    uint8_t rel = ReadCode8(1);
-    if(jcc(cc, freg)){
-        eip += 2;
-        Jmp_near8(rel);
-        eip--;
-    }else{
-        eip++;
+    void x86CPU::op_jcc_rel8() {
+        int cc = opbyte - 0x70;
+        uint8_t rel = ReadCode8(1);
+        if (jcc(cc, freg)) {
+            eip += 2;
+            Jmp_near8(rel);
+            eip--;
+        }
+        else {
+            eip++;
+        }
     }
-}
 
-void x86CPU::op_jcc_relW(){
-    int cc = opbyte-0x80;
-    uint32_t rel = ReadCodeW(1);
-    if(jcc(cc, freg)){
-        eip += OperandSize() + 1;
-        Jmp_nearW(rel);
-        eip--;
-    }else{
-        eip+=OperandSize(); //1 to move past current opcode
+    void x86CPU::op_jcc_relW() {
+        int cc = opbyte - 0x80;
+        uint32_t rel = ReadCodeW(1);
+        if (jcc(cc, freg)) {
+            eip += OperandSize() + 1;
+            Jmp_nearW(rel);
+            eip--;
+        }
+        else {
+            eip += OperandSize(); //1 to move past current opcode
+        }
     }
-}
 
-void x86CPU::op_setcc_rm8(){
-    int cc = opbyte-0x90;
-    ModRM rm8(this);
-    if(jcc(cc, freg)){ //use the same flags with jcc
-        rm8.WriteByte(1); 
-    }else{
-        rm8.WriteByte(0);
+    void x86CPU::op_setcc_rm8() {
+        int cc = opbyte - 0x90;
+        ModRM rm8(this);
+        if (jcc(cc, freg)) { //use the same flags with jcc
+            rm8.WriteByte(1);
+        }
+        else {
+            rm8.WriteByte(0);
+        }
     }
-}
 
 
-void x86CPU::op_clc(){
-	freg.bits.cf=0;
-}
+    void x86CPU::op_clc() {
+        freg.bits.cf = 0;
+    }
 
-void x86CPU::op_cld(){
-	freg.bits.df=0;
-}
+    void x86CPU::op_cld() {
+        freg.bits.df = 0;
+    }
 
-void x86CPU::op_cli(){
-	freg.bits._if=0;
-}
+    void x86CPU::op_cli() {
+        freg.bits._if = 0;
+    }
 
-void x86CPU::op_stc(){
-	freg.bits.cf=1;
-}
+    void x86CPU::op_stc() {
+        freg.bits.cf = 1;
+    }
 
-void x86CPU::op_std(){
-	freg.bits.df=1;
-}
+    void x86CPU::op_std() {
+        freg.bits.df = 1;
+    }
 
-void x86CPU::op_sti(){
-	freg.bits._if=1;
-}
+    void x86CPU::op_sti() {
+        freg.bits._if = 1;
+    }
 
 
-void x86CPU::op_cmc(){
-    freg.bits.cf=freg.bits.cf^1;
-}
+    void x86CPU::op_cmc() {
+        freg.bits.cf = freg.bits.cf ^ 1;
+    }
 
-void x86CPU::op_lahf(){
-	SetReg8(AH, freg.data & 0xFF);
-}
-void x86CPU::op_sahf(){
-    freg.data = (freg.data & 0xFFFFFF00) | Reg8(AH);
-}
+    void x86CPU::op_lahf() {
+        SetReg8(AH, freg.data & 0xFF);
+    }
+    void x86CPU::op_sahf() {
+        freg.data = (freg.data & 0xFFFFFF00) | Reg8(AH);
+    }
 
 
 

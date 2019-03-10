@@ -13,7 +13,7 @@ are met:
    documentation and/or other materials provided with the distribution.
 3. The name of the author may not be used to endorse or promote products
    derived from this software without specific prior written permission.
-   
+
 THIS SOFTWARE IS PROVIDED ``AS IS'' AND ANY EXPRESS OR IMPLIED WARRANTIES,
 INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY
 AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL
@@ -34,157 +34,169 @@ This file is part of the x86Lib project.
 #define X86LIB_INTERNAL_H
 
 
-namespace x86Lib{
+namespace x86Lib {
 
-class x86CPU;
-
-
-static const uint32_t OPCODE_REAL_16=1;
-static const uint32_t OPCODE_HOSTED_32=2;
+    class x86CPU;
 
 
-//CPU Exceptions(interrupt handled)
-static const uint32_t DIV0_IEXCP=0xF000; //Divide by zero exception
-static const uint32_t DEBUG_IEXCP=0xF001; //Debug exception
-static const uint32_t NMI_IEXCP=0xF002; //NMI
-static const uint32_t BREAK_IEXCP=0xF003; //Breakpoint/int 3
-static const uint32_t OVERFLOW_IEXCP=0xF004; //Overflow/into
-static const uint32_t BOUNDS_IEXCP=0xF005; //Bounds Check
-static const uint32_t UNK_IEXCP=0xF006; //unknown opcode
-static const uint32_t UNDEV_IEXCP=0xF007; //Unknown device
-static const uint32_t DOUBLE_FAULT_IEXCP=0xF008;
-static const uint32_t SEG_OVERRUN_IEXCP=0xF009; //Co-processor segment overrun..(not used after i486
-static const uint32_t ITSS_IEXCP=0xF00A; //Invalid TSS
-static const uint32_t ISEG_IEXCP=0xF00B; //Invalid/non-existent segment
-static const uint32_t STACK_IEXCP=0xF00C; //Stack Exception
-static const uint32_t GPF_IEXCP=0xF00D; //GPF
-static const uint32_t PAGE_FAULT_IEXCP=0xF00E;
-static const uint32_t RESERVED_IEXCP=0xF00F; //Reserved by intel, so internal use?
-static const uint32_t FLOAT_ERROR_IEXCP=0xF010; //Floating Point Error..
-static const uint32_t ALIGN_IEXCP=0xF011; //Alignment Check...
+    static const uint32_t OPCODE_REAL_16 = 1;
+    static const uint32_t OPCODE_HOSTED_32 = 2;
 
-static const uint32_t UNSUPPORTED_EXCP = 0xF0FF; //indicates something unsupported by the emulator
 
-class CpuInt_excp{ //Used internally for handling interrupt exceptions...
-	public:
-	CpuInt_excp(uint32_t code_){
-		code=code_;
-	}
-	uint32_t code;
-};
+    //CPU Exceptions(interrupt handled)
+    static const uint32_t DIV0_IEXCP = 0xF000; //Divide by zero exception
+    static const uint32_t DEBUG_IEXCP = 0xF001; //Debug exception
+    static const uint32_t NMI_IEXCP = 0xF002; //NMI
+    static const uint32_t BREAK_IEXCP = 0xF003; //Breakpoint/int 3
+    static const uint32_t OVERFLOW_IEXCP = 0xF004; //Overflow/into
+    static const uint32_t BOUNDS_IEXCP = 0xF005; //Bounds Check
+    static const uint32_t UNK_IEXCP = 0xF006; //unknown opcode
+    static const uint32_t UNDEV_IEXCP = 0xF007; //Unknown device
+    static const uint32_t DOUBLE_FAULT_IEXCP = 0xF008;
+    static const uint32_t SEG_OVERRUN_IEXCP = 0xF009; //Co-processor segment overrun..(not used after i486
+    static const uint32_t ITSS_IEXCP = 0xF00A; //Invalid TSS
+    static const uint32_t ISEG_IEXCP = 0xF00B; //Invalid/non-existent segment
+    static const uint32_t STACK_IEXCP = 0xF00C; //Stack Exception
+    static const uint32_t GPF_IEXCP = 0xF00D; //GPF
+    static const uint32_t PAGE_FAULT_IEXCP = 0xF00E;
+    static const uint32_t RESERVED_IEXCP = 0xF00F; //Reserved by intel, so internal use?
+    static const uint32_t FLOAT_ERROR_IEXCP = 0xF010; //Floating Point Error..
+    static const uint32_t ALIGN_IEXCP = 0xF011; //Alignment Check...
 
-/**Random support functions that are static inline'd**/
+    static const uint32_t UNSUPPORTED_EXCP = 0xF0FF; //indicates something unsupported by the emulator
 
-static inline uint16_t SignExtend8to16(uint8_t val){ //sign extend a byte to a word
-	if((val&0x80)!=0){
-		return 0xFF00|val;
-	}else{
-		return val;
-	}
-}
+    class CpuInt_excp { //Used internally for handling interrupt exceptions...
+    public:
+        CpuInt_excp(uint32_t code_) {
+            code = code_;
+        }
+        uint32_t code;
+    };
 
-static inline uint32_t SignExtend8to32(uint8_t val){ //sign extend a byte to a word
-    if((val&0x80)!=0){
-        return 0xFFFFFFFF00|val;
-    }else{
-        return val;
-    }
-}
+    /**Random support functions that are static inline'd**/
 
-static inline uint32_t SignExtend16to32(uint16_t val){ //sign extend a byte to a word
-    if((val&0x8000)!=0){
-        return 0xFFFF0000|val;
-    }else{
-        return val;
-    }
-}
-
-static inline uint64_t SignExtend32to64(uint32_t val){ //sign extend a byte to a word
-    if((val&0x80000000)!=0){
-        return 0xFFFFFFFF00000000|val;
-    }else{
-        return val;
-    }
-}
-
-//convert signed integer into unsigned, and store top bit in store
-static inline uint64_t Unsign64(uint64_t val,bool &store){
-
-    if(val>=0x8000000000000000){
-        store=1;
-        return (~(val))+1;
-    }else{
-        store=0;
-        return val;
+    static inline uint16_t SignExtend8to16(uint8_t val) { //sign extend a byte to a word
+        if ((val & 0x80) != 0) {
+            return 0xFF00 | val;
+        }
+        else {
+            return val;
+        }
     }
 
-}
-static inline uint32_t Unsign32(uint32_t val,bool &store){
-
-	if(val>=0x80000000){
-		store=1;
-		return (~(val))+1;
-	}else{
-		store=0;
-		return val;
-	}
-
-}
-
-static inline uint16_t Unsign16(uint16_t val,bool &store){
-	if(val>=0x8000){
-		store=1;
-		return (~(val))+1;
-	}else{
-		store=0;
-		return val;
-	}
-
-}
-
-static inline uint8_t Unsign8(uint8_t val,bool &store){
-	if(val>=0x80){
-		store=1;
-		return (~(val))+1;
-	}else{
-		store=0;
-		return val;
-	}
-
-}
-
-/**Resign an unsigned integer using the store as the sign bit.
---Note, in order to combine two sign bits, just bitwise XOR(^) them!*/
-static inline uint64_t Resign64(uint64_t val,bool store1){
-    if((store1)==1){
-        return (~(val))+1;
-    }else{
-        return val;
+    static inline uint32_t SignExtend8to32(uint8_t val) { //sign extend a byte to a word
+        if ((val & 0x80) != 0) {
+            return 0xFFFFFFFF00 | val;
+        }
+        else {
+            return val;
+        }
     }
-}
-static inline uint32_t Resign32(uint32_t val,bool store1){
-	if((store1)==1){
-		return (~(val))+1;
-	}else{
-		return val;
-	}
-}
 
-static inline uint16_t Resign16(uint16_t val,bool store1){
-	if((store1)==1){
-		return (~(val))+1;
-	}else{
-		return val;
-	}
-}
+    static inline uint32_t SignExtend16to32(uint16_t val) { //sign extend a byte to a word
+        if ((val & 0x8000) != 0) {
+            return 0xFFFF0000 | val;
+        }
+        else {
+            return val;
+        }
+    }
 
-static inline uint8_t Resign8(uint8_t val,bool store1){
-	if((store1)==1){
-		return (~(val))+1;
-	}else{
-		return val;
-	}
-}
+    static inline uint64_t SignExtend32to64(uint32_t val) { //sign extend a byte to a word
+        if ((val & 0x80000000) != 0) {
+            return 0xFFFFFFFF00000000 | val;
+        }
+        else {
+            return val;
+        }
+    }
+
+    //convert signed integer into unsigned, and store top bit in store
+    static inline uint64_t Unsign64(uint64_t val, bool &store) {
+
+        if (val >= 0x8000000000000000) {
+            store = 1;
+            return (~(val)) + 1;
+        }
+        else {
+            store = 0;
+            return val;
+        }
+
+    }
+    static inline uint32_t Unsign32(uint32_t val, bool &store) {
+
+        if (val >= 0x80000000) {
+            store = 1;
+            return (~(val)) + 1;
+        }
+        else {
+            store = 0;
+            return val;
+        }
+
+    }
+
+    static inline uint16_t Unsign16(uint16_t val, bool &store) {
+        if (val >= 0x8000) {
+            store = 1;
+            return (~(val)) + 1;
+        }
+        else {
+            store = 0;
+            return val;
+        }
+
+    }
+
+    static inline uint8_t Unsign8(uint8_t val, bool &store) {
+        if (val >= 0x80) {
+            store = 1;
+            return (~(val)) + 1;
+        }
+        else {
+            store = 0;
+            return val;
+        }
+
+    }
+
+    /**Resign an unsigned integer using the store as the sign bit.
+    --Note, in order to combine two sign bits, just bitwise XOR(^) them!*/
+    static inline uint64_t Resign64(uint64_t val, bool store1) {
+        if ((store1) == 1) {
+            return (~(val)) + 1;
+        }
+        else {
+            return val;
+        }
+    }
+    static inline uint32_t Resign32(uint32_t val, bool store1) {
+        if ((store1) == 1) {
+            return (~(val)) + 1;
+        }
+        else {
+            return val;
+        }
+    }
+
+    static inline uint16_t Resign16(uint16_t val, bool store1) {
+        if ((store1) == 1) {
+            return (~(val)) + 1;
+        }
+        else {
+            return val;
+        }
+    }
+
+    static inline uint8_t Resign8(uint8_t val, bool store1) {
+        if ((store1) == 1) {
+            return (~(val)) + 1;
+        }
+        else {
+            return val;
+        }
+    }
 
 };
 

@@ -13,7 +13,7 @@ are met:
    documentation and/or other materials provided with the distribution.
 3. The name of the author may not be used to endorse or promote products
    derived from this software without specific prior written permission.
-   
+
 THIS SOFTWARE IS PROVIDED ``AS IS'' AND ANY EXPRESS OR IMPLIED WARRANTIES,
 INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY
 AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL
@@ -57,9 +57,9 @@ single threaded implementations.
 
 For PhysMemory preaccess lock checks, basically, what should be attached at the first of all
 Readxxxx and Writexxxx functions is
-	if(locked_access==0){
-		while(locked>0){}
-	}
+    if(locked_access==0){
+        while(locked>0){}
+    }
 so that if the busmaster is no trying to access memory, and the memory is locked,
 then it will halt access until the lock is repelled. (note the infinite loop should never
 be got to in single-threaded implementations

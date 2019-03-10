@@ -13,7 +13,7 @@ are met:
    documentation and/or other materials provided with the distribution.
 3. The name of the author may not be used to endorse or promote products
    derived from this software without specific prior written permission.
-   
+
 THIS SOFTWARE IS PROVIDED ``AS IS'' AND ANY EXPRESS OR IMPLIED WARRANTIES,
 INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY
 AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL
@@ -41,25 +41,27 @@ This file is part of the x86Lib project.
 using namespace std;
 using namespace x86Lib;
 
-class MapMemory : public MemoryDevice{
-    bool range(uint32_t val, uint32_t min, uint32_t len){
-        return val >= min && val < min+len;
+class MapMemory : public MemoryDevice {
+    bool range(uint32_t val, uint32_t min, uint32_t len) {
+        return val >= min && val < min + len;
     }
 public:
-    virtual void Read(uint32_t address,int count,void *buffer){
+    virtual void Read(uint32_t address, int count, void *buffer) {
         //nothing yet
         memset(buffer, 0, count);
     }
-    virtual void Write(uint32_t address,int count,void *buffer){
+    virtual void Write(uint32_t address, int count, void *buffer) {
         //note memmap prefix is already subtracted out
-        if(range(address, 0, 4)) {
-            cout << hex << *((uint32_t *) buffer) << endl;
-        }else if(range(address, 4, 8)){
+        if (range(address, 0, 4)) {
+            cout << hex << *((uint32_t *)buffer) << endl;
+        }
+        else if (range(address, 4, 8)) {
             char tmp[5];
-            tmp[4]=0;
+            tmp[4] = 0;
             memcpy(tmp, buffer, 4);
             cout << tmp << endl;
-        }else{
+        }
+        else {
             cout << "unknown memmap" << endl;
         }
     }
@@ -69,122 +71,127 @@ MemorySystem Memory;
 RAMemory *scratchMem;
 
 volatile bool int_cause;
-volatile uint8_t int_cause_number=33;
+volatile uint8_t int_cause_number = 33;
 
-void DumpMemory(){
-	cout << "dumping memory!" << endl;
-	uint32_t i;
-	FILE *fh;
-	fh=fopen("mem_dump.bin","w");
-	uint8_t *tmp = new uint8_t[0x100000];
-	Memory.Read(0x100000, 0x100000, tmp, Internal);
-	for(i=0;i<=0x100000;i++){
-		fputc(tmp[i],fh);
-	}
-	fclose(fh);
-	delete[] tmp;
+void DumpMemory() {
+    cout << "dumping memory!" << endl;
+    uint32_t i;
+    FILE *fh;
+    fh = fopen("mem_dump.bin", "w");
+    uint8_t *tmp = new uint8_t[0x100000];
+    Memory.Read(0x100000, 0x100000, tmp, Internal);
+    for (i = 0; i <= 0x100000; i++) {
+        fputc(tmp[i], fh);
+    }
+    fclose(fh);
+    delete[] tmp;
 }
 
-void WritePort(uint16_t port,uint32_t val){
-	/*Not going to try to emulate actual hardware...but rather just give us some useful
-	functions to try out...*/
-	switch(port){
-		case 0: //print ascii char of val
-		cout << (char) val << flush;
-		break;
-		case 1: //print value of byte
-		cout << hex << (int)(uint8_t)val << flush;
-		break;
-		case 2: //print value of word
-		cout << hex << (int)(uint16_t)val << flush;
-		break;
-		case 3: //print value of dword
-		cout << hex << (int)(uint32_t)val << flush;
-		break;
-		case 4: //cause an interrupt
-		int_cause=1;
-		break;
+void WritePort(uint16_t port, uint32_t val) {
+    /*Not going to try to emulate actual hardware...but rather just give us some useful
+    functions to try out...*/
+    switch (port) {
+    case 0: //print ascii char of val
+        cout << (char)val << flush;
+        break;
+    case 1: //print value of byte
+        cout << hex << (int)(uint8_t)val << flush;
+        break;
+    case 2: //print value of word
+        cout << hex << (int)(uint16_t)val << flush;
+        break;
+    case 3: //print value of dword
+        cout << hex << (int)(uint32_t)val << flush;
+        break;
+    case 4: //cause an interrupt
+        int_cause = 1;
+        break;
 
-		case 0xF0: //exit with val
-		cout << "exiting with code " << val << endl;
-		exit(val);
-		break;
-		case 0xF3: /*Dump memory to external file*/
-		DumpMemory();
-		break;
+    case 0xF0: //exit with val
+        cout << "exiting with code " << val << endl;
+        exit(val);
+        break;
+    case 0xF3: /*Dump memory to external file*/
+        DumpMemory();
+        break;
 
-		case 0x30: //prints value
-		putchar(val);
-		break;
+    case 0x30: //prints value
+        putchar(val);
+        break;
 
-		default:
-		cout << "undefined port" << endl;
-		break;
-	}
+    default:
+        cout << "undefined port" << endl;
+        break;
+    }
 
 
 }
 
-uint32_t ReadPort(uint16_t port){
-	switch(port){
-		case 0x30:
-		uint8_t tmp;
-		cin.read((char*)&tmp,1);
-		return tmp;
-		break;
+uint32_t ReadPort(uint16_t port) {
+    switch (port) {
+    case 0x30:
+        uint8_t tmp;
+        cin.read((char*)&tmp, 1);
+        return tmp;
+        break;
 
-		default:
-		cout << "undefined port" << endl;
-		return 0;
-		break;
-	}
+    default:
+        cout << "undefined port" << endl;
+        return 0;
+        break;
+    }
 }
 
-void port_read(x86CPU *thiscpu,uint16_t port,int size,void *buffer){
-	uint32_t val;
-	val=ReadPort(port);
-	if(size==1){
-		*(uint8_t*)buffer=val;
-	}else if(size==2){
-		*(uint16_t*)buffer=val;
-	}else{
-		throw;
-	}
+void port_read(x86CPU *thiscpu, uint16_t port, int size, void *buffer) {
+    uint32_t val;
+    val = ReadPort(port);
+    if (size == 1) {
+        *(uint8_t*)buffer = val;
+    }
+    else if (size == 2) {
+        *(uint16_t*)buffer = val;
+    }
+    else {
+        throw;
+    }
 }
-void port_write(x86CPU *thiscpu,uint16_t port,int size,void *buffer){
-	uint32_t val;
-	if(size==1){
-		val=*(uint8_t*)buffer;
-	}else if(size==2){
-		val=(uint16_t)*(uint16_t*)buffer;
-	}else if(size == 4){
-		val=(uint32_t)*(uint32_t*)buffer;
-	}else{
-		throw;
-	}
-	WritePort(port,val);
+void port_write(x86CPU *thiscpu, uint16_t port, int size, void *buffer) {
+    uint32_t val;
+    if (size == 1) {
+        val = *(uint8_t*)buffer;
+    }
+    else if (size == 2) {
+        val = (uint16_t)*(uint16_t*)buffer;
+    }
+    else if (size == 4) {
+        val = (uint32_t)*(uint32_t*)buffer;
+    }
+    else {
+        throw;
+    }
+    WritePort(port, val);
 }
 
-class PCPorts : public PortDevice{
-	public:
-	~PCPorts(){}
-	virtual void Read(uint16_t port,int size,void *buffer){
-		port_read(NULL,port,size,buffer);
-	}
-	virtual void Write(uint16_t port,int size,void *buffer){
-		port_write(NULL,port,size,buffer);
-	}
+class PCPorts : public PortDevice {
+public:
+    ~PCPorts() {}
+    virtual void Read(uint16_t port, int size, void *buffer) {
+        port_read(NULL, port, size, buffer);
+    }
+    virtual void Write(uint16_t port, int size, void *buffer) {
+        port_write(NULL, port, size, buffer);
+    }
 };
 
 PCPorts ports;
 
 x86CPU *cpu;
 
-void each_opcode(x86CPU *thiscpu){
-	if(int_cause){
-		int_cause=false;
-		cpu->Int(int_cause_number);
-	}
+void each_opcode(x86CPU *thiscpu) {
+    if (int_cause) {
+        int_cause = false;
+        cpu->Int(int_cause_number);
+    }
 }
 
 
@@ -197,171 +204,174 @@ struct ContractMapInfo {
     uint32_t reserved;
 } __attribute__((__packed__));
 
-static ContractMapInfo* parseContractData(const uint8_t* contract, const uint8_t** outputCode, const uint8_t** outputData, const uint8_t** outputOptions){
-    ContractMapInfo *map = (ContractMapInfo*) contract;
+static ContractMapInfo* parseContractData(const uint8_t* contract, const uint8_t** outputCode, const uint8_t** outputData, const uint8_t** outputOptions) {
+    ContractMapInfo *map = (ContractMapInfo*)contract;
     *outputOptions = &contract[sizeof(ContractMapInfo)];
     *outputCode = &contract[sizeof(ContractMapInfo) + map->optionsSize];
     *outputData = &contract[sizeof(ContractMapInfo) + map->optionsSize + map->codeSize];
     return map;
 }
 
-bool singleStep=false;
-bool singleStepShort=false;
-bool onlyAssemble=false;
+bool singleStep = false;
+bool singleStepShort = false;
+bool onlyAssemble = false;
 
-int main(int argc, char* argv[]){
-	if(argc < 2){
-		cout << "./x86test {program.elf | program.bin} [-singlestep, -singlestep-short, -assemble]" << endl;
-		return 1;
-	}
-	if(argc > 2){
-		if(strcmp(argv[2], "-singlestep") == 0){
-			singleStep = true;
-		}
-		if(strcmp(argv[2], "-singlestep-short") == 0){
-			singleStep = true;
-			singleStepShort=true;
-		}
-		if(strcmp(argv[2], "-assemble") == 0){
-			//Assemble elf file into flat data suitable for Qtum blockchain
-			onlyAssemble = true;
-		}
-	}
+int main(int argc, char* argv[]) {
+    if (argc < 2) {
+        cout << "./x86test {program.elf | program.bin} [-singlestep, -singlestep-short, -assemble]" << endl;
+        return 1;
+    }
+    if (argc > 2) {
+        if (strcmp(argv[2], "-singlestep") == 0) {
+            singleStep = true;
+        }
+        if (strcmp(argv[2], "-singlestep-short") == 0) {
+            singleStep = true;
+            singleStepShort = true;
+        }
+        if (strcmp(argv[2], "-assemble") == 0) {
+            //Assemble elf file into flat data suitable for Qtum blockchain
+            onlyAssemble = true;
+        }
+    }
 
-	//init_memory(argv[1]);
-	PortSystem Ports;
-	ROMemory coderom(0x1000, "code");
-	RAMemory config(0x1000, "config");
-	RAMemory scratch(0x100000, "scratch");
-	RAMemory stack(0x1000, "stack");
-	scratchMem = &scratch;
-	
-	Memory.Add(0x5, 0xFFF, &config);
-	Memory.Add(0x1000, 0xFFFFF, &coderom);
-	Memory.Add(0x100000, 0x1FFFFF, &scratch);
-	Memory.Add(0x200000, 0x201000, &stack);
+    //init_memory(argv[1]);
+    PortSystem Ports;
+    ROMemory coderom(0x1000, "code");
+    RAMemory config(0x1000, "config");
+    RAMemory scratch(0x100000, "scratch");
+    RAMemory stack(0x1000, "stack");
+    scratchMem = &scratch;
 
-	int maxSize=0x10000;
-	char* fileData=new char[maxSize];
-	string fileName = argv[1];
-	ifstream file(fileName.c_str(), ios::binary);
-	if(!file){
-		cout << "file " << argv[1] << " does not exist" << endl;
-		exit(1);
-	}
-	int fileLength = file.tellg();
-	file.seekg(0, std::ios::end);
-	fileLength = (uint32_t) (((long)file.tellg()) - (long) fileLength);
-	file.seekg(0, std::ios::beg);
-	file.read(fileData, maxSize);
+    Memory.Add(0x5, 0xFFF, &config);
+    Memory.Add(0x1000, 0xFFFFF, &coderom);
+    Memory.Add(0x100000, 0x1FFFFF, &scratch);
+    Memory.Add(0x200000, 0x201000, &stack);
 
-	memset(coderom.GetMemory(), 0x66, 0x1000);
-	memset(scratch.GetMemory(), 0x00, 0x100000);
+    int maxSize = 0x10000;
+    char* fileData = new char[maxSize];
+    string fileName = argv[1];
+    ifstream file(fileName.c_str(), ios::binary);
+    if (!file) {
+        cout << "file " << argv[1] << " does not exist" << endl;
+        exit(1);
+    }
+    int fileLength = file.tellg();
+    file.seekg(0, std::ios::end);
+    fileLength = (uint32_t)(((long)file.tellg()) - (long)fileLength);
+    file.seekg(0, std::ios::beg);
+    file.read(fileData, maxSize);
 
-	bool doElf = false;
-	string::size_type extensionIndex;
-	extensionIndex = fileName.rfind('.');
-	if(extensionIndex != string::npos){
-		string extension = fileName.substr(extensionIndex + 1);
-		if(extension == "elf"){
-			doElf = true;
-		}
-	} //else no extension
+    memset(coderom.GetMemory(), 0x66, 0x1000);
+    memset(scratch.GetMemory(), 0x00, 0x100000);
 
-	size_t codesize=0;
-	size_t datasize=0;
+    bool doElf = false;
+    string::size_type extensionIndex;
+    extensionIndex = fileName.rfind('.');
+    if (extensionIndex != string::npos) {
+        string extension = fileName.substr(extensionIndex + 1);
+        if (extension == "elf") {
+            doElf = true;
+        }
+    } //else no extension
 
-	if(doElf){
-		//load ELF32 file
-		cout << "Found .elf file extension. Attempting to load ELF file" << endl;
-		if(!loadElf(coderom.GetMemory(), &codesize, scratch.GetMemory(), &datasize, fileData, fileLength)){
-			cout << "error loading ELF" << endl;
-			return -1;
-		}
-	}else{
-		//load BIN file (no option to load data with bin files)
-		cout << "Attempting to load BIN file. Warning: It is not possible to load data with this" << endl;
-		memcpy(coderom.GetMemory(), fileData, fileLength);
-		datasize = 0;
-		codesize = fileLength;
-	}
+    size_t codesize = 0;
+    size_t datasize = 0;
 
-	if(onlyAssemble){
-		//don't execute anything, just dump the flat memory to a file
-		int totalSize = 16 + codesize + datasize;
-		cout << "code: " << codesize << " data: " << datasize << endl;
-		char *out = new char[totalSize];
-		ContractMapInfo map;
-		map.optionsSize = 0;
-		map.codeSize = codesize;
-		map.dataSize = datasize;
-		map.reserved = 0;
-		memset(out, 0, totalSize);
-		memcpy(&out[0], &map.optionsSize, sizeof(uint32_t));
-		memcpy(&out[4], &map.codeSize, sizeof(uint32_t));
-		memcpy(&out[8], &map.dataSize, sizeof(uint32_t));
-		memcpy(&out[12], &map.reserved, sizeof(uint32_t));
-		memcpy(&out[16], &coderom.GetMemory()[0], codesize);
-		memcpy(&out[16 + codesize], scratch.GetMemory(), datasize);
+    if (doElf) {
+        //load ELF32 file
+        cout << "Found .elf file extension. Attempting to load ELF file" << endl;
+        if (!loadElf(coderom.GetMemory(), &codesize, scratch.GetMemory(), &datasize, fileData, fileLength)) {
+            cout << "error loading ELF" << endl;
+            return -1;
+        }
+    }
+    else {
+        //load BIN file (no option to load data with bin files)
+        cout << "Attempting to load BIN file. Warning: It is not possible to load data with this" << endl;
+        memcpy(coderom.GetMemory(), fileData, fileLength);
+        datasize = 0;
+        codesize = fileLength;
+    }
 
-		for(int i=0;i<totalSize;i++){
-			cout << hex << setfill('0') << setw(2) << (int)(uint8_t)out[i];
-		}
-		cout << endl;
-		delete[] out;
-		return 0;
-	}
+    if (onlyAssemble) {
+        //don't execute anything, just dump the flat memory to a file
+        int totalSize = 16 + codesize + datasize;
+        cout << "code: " << codesize << " data: " << datasize << endl;
+        char *out = new char[totalSize];
+        ContractMapInfo map;
+        map.optionsSize = 0;
+        map.codeSize = codesize;
+        map.dataSize = datasize;
+        map.reserved = 0;
+        memset(out, 0, totalSize);
+        memcpy(&out[0], &map.optionsSize, sizeof(uint32_t));
+        memcpy(&out[4], &map.codeSize, sizeof(uint32_t));
+        memcpy(&out[8], &map.dataSize, sizeof(uint32_t));
+        memcpy(&out[12], &map.reserved, sizeof(uint32_t));
+        memcpy(&out[16], &coderom.GetMemory()[0], codesize);
+        memcpy(&out[16 + codesize], scratch.GetMemory(), datasize);
 
-	Ports.Add(0,0xFFFF,(PortDevice*)&ports);
-	cpu=new x86CPU();
-	cpu->Memory=&Memory;
-	cpu->Ports=&Ports;
-	cout << "Loaded! Beginning execution..." << endl;
+        for (int i = 0; i < totalSize; i++) {
+            cout << hex << setfill('0') << setw(2) << (int)(uint8_t)out[i];
+        }
+        cout << endl;
+        delete[] out;
+        return 0;
+    }
 
-	
-	for(;;){
-		try{
-			if(!singleStep){
-				cpu->Exec(1000);
-				if(int_cause){
-					int_cause=false;
-					cpu->Int(int_cause_number);
-				}
-			}else{
-				cpu->Exec(1);
-				cout <<"OPCODE: " << cpu->GetLastOpcodeName() << "; hex: 0x" << hex << cpu->GetLastOpcode() << endl;
-				if(singleStepShort){
-					cout << "EIP: 0x" << cpu->GetLocation() << endl;
-				}else{
-					cpu->DumpState(cout);
-					cout << "-------------------------------" << endl;
-				}
-				if(int_cause){
-					int_cause=false;
-					cpu->Int(int_cause_number);
-				}
-			}
-		}
-		catch(CPUFaultException err){
-			cout << "CPU Panic!" <<endl;
-			cout << "Message: " << err.desc << endl;
-			cout << "Code: 0x" << hex << err.code << endl;
-			cout <<"OPCODE: " << cpu->GetLastOpcodeName() << "; hex: 0x" << hex << cpu->GetLastOpcode() << endl;
-			cpu->DumpState(cout);
-			cout << endl;
-			return 1;
-		}
-		catch(MemoryException *err){
-			cout << "Memory Error!" <<endl;
-			cout << "Address: 0x" << hex << err->address << endl;
-			cout <<"OPCODE: " << cpu->GetLastOpcodeName() << "; hex: 0x" << hex << cpu->GetLastOpcode() << endl;
-			cpu->DumpState(cout);
-			cout << endl;
-			throw;
-			//return 1;
-		}
-	}
-	return 0;
+    Ports.Add(0, 0xFFFF, (PortDevice*)&ports);
+    cpu = new x86CPU();
+    cpu->Memory = &Memory;
+    cpu->Ports = &Ports;
+    cout << "Loaded! Beginning execution..." << endl;
+
+
+    for (;;) {
+        try {
+            if (!singleStep) {
+                cpu->Exec(1000);
+                if (int_cause) {
+                    int_cause = false;
+                    cpu->Int(int_cause_number);
+                }
+            }
+            else {
+                cpu->Exec(1);
+                cout << "OPCODE: " << cpu->GetLastOpcodeName() << "; hex: 0x" << hex << cpu->GetLastOpcode() << endl;
+                if (singleStepShort) {
+                    cout << "EIP: 0x" << cpu->GetLocation() << endl;
+                }
+                else {
+                    cpu->DumpState(cout);
+                    cout << "-------------------------------" << endl;
+                }
+                if (int_cause) {
+                    int_cause = false;
+                    cpu->Int(int_cause_number);
+                }
+            }
+        }
+        catch (CPUFaultException err) {
+            cout << "CPU Panic!" << endl;
+            cout << "Message: " << err.desc << endl;
+            cout << "Code: 0x" << hex << err.code << endl;
+            cout << "OPCODE: " << cpu->GetLastOpcodeName() << "; hex: 0x" << hex << cpu->GetLastOpcode() << endl;
+            cpu->DumpState(cout);
+            cout << endl;
+            return 1;
+        }
+        catch (MemoryException *err) {
+            cout << "Memory Error!" << endl;
+            cout << "Address: 0x" << hex << err->address << endl;
+            cout << "OPCODE: " << cpu->GetLastOpcodeName() << "; hex: 0x" << hex << cpu->GetLastOpcode() << endl;
+            cpu->DumpState(cout);
+            cout << endl;
+            throw;
+            //return 1;
+        }
+    }
+    return 0;
 }
 
 

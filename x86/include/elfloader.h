@@ -2,7 +2,7 @@
 #define ELFLOADER_H
 
 # include <stdint.h>
- 
+
 typedef uint16_t Elf32_Half;    // Unsigned half int
 typedef uint32_t Elf32_Off; // Unsigned offset
 typedef uint32_t Elf32_Addr;    // Unsigned address
@@ -10,53 +10,53 @@ typedef uint32_t Elf32_Word;    // Unsigned int
 typedef int32_t  Elf32_Sword;   // Signed int
 
 # define ELF_NIDENT 16
- 
+
 typedef struct
 {
-  unsigned char e_ident[ELF_NIDENT]; /* Magic number and other info */
-  Elf32_Half    e_type;         /* Object file type */
-  Elf32_Half    e_machine;      /* Architecture */
-  Elf32_Word    e_version;      /* Object file version */
-  Elf32_Addr    e_entry;        /* Entry point virtual address */
-  Elf32_Off e_phoff;        /* Program header table file offset */
-  Elf32_Off e_shoff;        /* Section header table file offset */
-  Elf32_Word    e_flags;        /* Processor-specific flags */
-  Elf32_Half    e_ehsize;       /* ELF header size in bytes */
-  Elf32_Half    e_phentsize;        /* Program header table entry size */
-  Elf32_Half    e_phnum;        /* Program header table entry count */
-  Elf32_Half    e_shentsize;        /* Section header table entry size */
-  Elf32_Half    e_shnum;        /* Section header table entry count */
-  Elf32_Half    e_shstrndx;     /* Section header string table index */
+    unsigned char e_ident[ELF_NIDENT]; /* Magic number and other info */
+    Elf32_Half    e_type;         /* Object file type */
+    Elf32_Half    e_machine;      /* Architecture */
+    Elf32_Word    e_version;      /* Object file version */
+    Elf32_Addr    e_entry;        /* Entry point virtual address */
+    Elf32_Off e_phoff;        /* Program header table file offset */
+    Elf32_Off e_shoff;        /* Section header table file offset */
+    Elf32_Word    e_flags;        /* Processor-specific flags */
+    Elf32_Half    e_ehsize;       /* ELF header size in bytes */
+    Elf32_Half    e_phentsize;        /* Program header table entry size */
+    Elf32_Half    e_phnum;        /* Program header table entry count */
+    Elf32_Half    e_shentsize;        /* Section header table entry size */
+    Elf32_Half    e_shnum;        /* Section header table entry count */
+    Elf32_Half    e_shstrndx;     /* Section header string table index */
 } Elf32_Ehdr;
 
 
 enum Elf_Ident {
-    EI_MAG0     = 0, // 0x7F
-    EI_MAG1     = 1, // 'E'
-    EI_MAG2     = 2, // 'L'
-    EI_MAG3     = 3, // 'F'
-    EI_CLASS    = 4, // Architecture (32/64)
-    EI_DATA     = 5, // Byte Order
-    EI_VERSION  = 6, // ELF Version
-    EI_OSABI    = 7, // OS Specific
-    EI_ABIVERSION   = 8, // OS Specific
-    EI_PAD      = 9  // Padding
+    EI_MAG0 = 0, // 0x7F
+    EI_MAG1 = 1, // 'E'
+    EI_MAG2 = 2, // 'L'
+    EI_MAG3 = 3, // 'F'
+    EI_CLASS = 4, // Architecture (32/64)
+    EI_DATA = 5, // Byte Order
+    EI_VERSION = 6, // ELF Version
+    EI_OSABI = 7, // OS Specific
+    EI_ABIVERSION = 8, // OS Specific
+    EI_PAD = 9  // Padding
 };
- 
+
 # define ELFMAG0    0x7F // e_ident[EI_MAG0]
 # define ELFMAG1    'E'  // e_ident[EI_MAG1]
 # define ELFMAG2    'L'  // e_ident[EI_MAG2]
 # define ELFMAG3    'F'  // e_ident[EI_MAG3]
- 
+
 # define ELFDATA2LSB    (1)  // Little Endian
 # define ELFCLASS32 (1)  // 32-bit Architecture
 
 enum Elf_Type {
-    ET_NONE     = 0, // Unkown Type
-    ET_REL      = 1, // Relocatable File
-    ET_EXEC     = 2  // Executable File
+    ET_NONE = 0, // Unkown Type
+    ET_REL = 1, // Relocatable File
+    ET_EXEC = 2  // Executable File
 };
- 
+
 # define EM_386     (3)  // x86 Machine Type
 # define EV_CURRENT (1)  // ELF Current Version
 
@@ -65,16 +65,16 @@ enum Elf_Type {
 
 typedef struct
 {
-  Elf32_Word    sh_name;        /* Section name (string tbl index) */
-  Elf32_Word    sh_type;        /* Section type */
-  Elf32_Word    sh_flags;       /* Section flags */
-  Elf32_Addr    sh_addr;        /* Section virtual addr at execution */
-  Elf32_Off sh_offset;      /* Section file offset */
-  Elf32_Word    sh_size;        /* Section size in bytes */
-  Elf32_Word    sh_link;        /* Link to another section */
-  Elf32_Word    sh_info;        /* Additional section information */
-  Elf32_Word    sh_addralign;       /* Section alignment */
-  Elf32_Word    sh_entsize;     /* Entry size if section holds table */
+    Elf32_Word    sh_name;        /* Section name (string tbl index) */
+    Elf32_Word    sh_type;        /* Section type */
+    Elf32_Word    sh_flags;       /* Section flags */
+    Elf32_Addr    sh_addr;        /* Section virtual addr at execution */
+    Elf32_Off sh_offset;      /* Section file offset */
+    Elf32_Word    sh_size;        /* Section size in bytes */
+    Elf32_Word    sh_link;        /* Link to another section */
+    Elf32_Word    sh_info;        /* Additional section information */
+    Elf32_Word    sh_addralign;       /* Section alignment */
+    Elf32_Word    sh_entsize;     /* Entry size if section holds table */
 } Elf32_Shdr;
 
 #define SHN_UNDEF   0       /* Undefined section */
@@ -92,7 +92,7 @@ typedef struct
 #define SHN_XINDEX  0xffff      /* Index is in extra table.  */
 #define SHN_HIRESERVE   0xffff      /* End of reserved indices */
 
-/* Legal values for sh_type (section type).  */
+                       /* Legal values for sh_type (section type).  */
 
 #define SHT_NULL      0     /* Section header table entry unused */
 #define SHT_PROGBITS      1     /* Program data */
@@ -153,18 +153,18 @@ typedef struct
                        referenced or allocated (Solaris).*/
 
 
-/* Program segment header.  */
+                       /* Program segment header.  */
 
 typedef struct
 {
-  Elf32_Word    p_type;         /* Segment type */
-  Elf32_Off p_offset;       /* Segment file offset */
-  Elf32_Addr    p_vaddr;        /* Segment virtual address */
-  Elf32_Addr    p_paddr;        /* Segment physical address */
-  Elf32_Word    p_filesz;       /* Segment size in file */
-  Elf32_Word    p_memsz;        /* Segment size in memory */
-  Elf32_Word    p_flags;        /* Segment flags */
-  Elf32_Word    p_align;        /* Segment alignment */
+    Elf32_Word    p_type;         /* Segment type */
+    Elf32_Off p_offset;       /* Segment file offset */
+    Elf32_Addr    p_vaddr;        /* Segment virtual address */
+    Elf32_Addr    p_paddr;        /* Segment physical address */
+    Elf32_Word    p_filesz;       /* Segment size in file */
+    Elf32_Word    p_memsz;        /* Segment size in memory */
+    Elf32_Word    p_flags;        /* Segment flags */
+    Elf32_Word    p_align;        /* Segment alignment */
 } Elf32_Phdr;
 
 /* Special value for e_phnum.  This indicates that the real number of
@@ -173,7 +173,7 @@ typedef struct
 
 #define PN_XNUM     0xffff
 
-/* Legal values for p_type (segment type).  */
+   /* Legal values for p_type (segment type).  */
 
 #define PT_NULL     0       /* Program header table entry unused */
 #define PT_LOAD     1       /* Loadable program segment */
@@ -247,7 +247,7 @@ typedef struct
 #define NT_ARM_HW_BREAK 0x402       /* ARM hardware breakpoint registers */
 #define NT_ARM_HW_WATCH 0x403       /* ARM hardware watchpoint registers */
 
-/* Legal values for the note segment descriptor types for object files.  */
+                       /* Legal values for the note segment descriptor types for object files.  */
 
 #define NT_VERSION  1       /* Contains a version string.  */
 
