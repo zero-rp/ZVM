@@ -34,3 +34,4 @@ bin/
 build/
 project/.vs
 *.vcxproj.user
+*.idb

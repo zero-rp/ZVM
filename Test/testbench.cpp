@@ -37,6 +37,7 @@ This file is part of the x86Lib project.
 #include <x86lib.h>
 
 #include <elfloader.h>
+#include <peloader.h>
 
 using namespace std;
 using namespace x86Lib;
@@ -266,6 +267,7 @@ int main(int argc, char* argv[]) {
     memset(scratch.GetMemory(), 0x00, 0x100000);
 
     bool doElf = false;
+	bool doPe = false;
     string::size_type extensionIndex;
     extensionIndex = fileName.rfind('.');
     if (extensionIndex != string::npos) {
@@ -273,11 +275,14 @@ int main(int argc, char* argv[]) {
         if (extension == "elf") {
             doElf = true;
         }
+		if (extension == "dll") {
+			doPe = true;
+		}
     } //else no extension
 
     size_t codesize = 0;
     size_t datasize = 0;
-
+	uint32_t pe_entry = NULL;
     if (doElf) {
         //load ELF32 file
         cout << "Found .elf file extension. Attempting to load ELF file" << endl;
@@ -286,6 +291,15 @@ int main(int argc, char* argv[]) {
             return -1;
         }
     }
+	else if (doPe) {
+		//load ELF32 file
+		cout << "Found .elf file extension. Attempting to load ELF file" << endl;
+		
+		if (!loadPE(coderom.GetMemory(), &codesize, scratch.GetMemory(), &datasize, fileData, fileLength, &pe_entry)) {
+			cout << "error loading ELF" << endl;
+			return -1;
+		}
+	}
     else {
         //load BIN file (no option to load data with bin files)
         cout << "Attempting to load BIN file. Warning: It is not possible to load data with this" << endl;
@@ -322,6 +336,7 @@ int main(int argc, char* argv[]) {
 
     Ports.Add(0, 0xFFFF, (PortDevice*)&ports);
     cpu = new x86CPU();
+	cpu->SetEip(0x1000+pe_entry);
     cpu->Memory = &Memory;
     cpu->Ports = &Ports;
     cout << "Loaded! Beginning execution..." << endl;

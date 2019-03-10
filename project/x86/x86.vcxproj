@@ -149,7 +149,7 @@
       <SDLCheck>true</SDLCheck>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <AdditionalIncludeDirectories>..\..\x86\include\;</AdditionalIncludeDirectories>
-      <DisableSpecificWarnings>4996;4146</DisableSpecificWarnings>
+      <DisableSpecificWarnings>4996;4146;4700</DisableSpecificWarnings>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>

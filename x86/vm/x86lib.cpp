@@ -254,6 +254,11 @@ namespace x86Lib {
         (this->*opcodes_hosted_ext[opbyte])();
     }
 
+
+	void x86CPU::SetEip(uint32_t _eip) {
+		eip = _eip;
+	}
+
     void x86CPU::Cycle() {
 #ifdef ENABLE_OPCODE_CALLBACK
         if (EachOpcodeCallback != NULL) {

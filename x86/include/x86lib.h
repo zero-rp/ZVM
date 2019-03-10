@@ -445,7 +445,7 @@ namespace x86Lib {
         void WriteWord32(uint16_t word);
         void WriteDword32(uint32_t dword);
     public:
-
+		
         ModRM(x86CPU* this_cpu_);
         ~ModRM();
         //The r suffix means /r, which means for op_specific=1, use general registers
@@ -506,7 +506,8 @@ namespace x86Lib {
         uint8_t opbyte; //current opcode (updated in cycle() and prefix opcodes)
         int opcodeExtra; //current opcode (updated in cycle() and prefix opcodes)
     protected:
-        //! Do one CPU opcode
+		
+		//! Do one CPU opcode
         /*! This should be put in the main loop, as this is what makes the CPU work.
         */
         void Cycle();
@@ -537,7 +538,7 @@ namespace x86Lib {
         MemorySystem *Memory;
         PortSystem *Ports;
         InterruptHypervisor *Hypervisor;
-
+		void SetEip(uint32_t _eip);
         std::string GetLastOpcodeName() {
             if (opcodeExtra != -1) {
                 std::stringstream s;
